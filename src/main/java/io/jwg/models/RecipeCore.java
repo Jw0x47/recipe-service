@@ -4,9 +4,12 @@ import java.util.List;
 
 public interface RecipeCore {
 
-    String getName();
-    String getLink();
-    int getCalories();
-    List<IngredientEgg> getIngredients();
+	String getName();
+
+	String getLink();
+
+	int getCalories();
+
+	List<IngredientEgg> getIngredients();
 
 }

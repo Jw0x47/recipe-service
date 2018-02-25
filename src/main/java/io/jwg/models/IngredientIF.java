@@ -6,5 +6,5 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface IngredientIF extends IngredientCore {
 
-    int getRecipeId();
+	int getRecipeId();
 }

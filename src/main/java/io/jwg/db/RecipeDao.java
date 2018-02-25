@@ -10,10 +10,10 @@ import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 
 public interface RecipeDao {
 
-    @GetGeneratedKeys
-    @SqlUpdate("INSERT INTO recipes (name, link) values (:name, :link)")
-    int insertRecipe(@BindWithRosetta RecipeEgg recipe);
+	@GetGeneratedKeys
+	@SqlUpdate("INSERT INTO recipes (name, link) values (:name, :link)")
+	int insertRecipe(@BindWithRosetta RecipeEgg recipe);
 
-    @SqlQuery("SELECT * FROM recipes where id = :id")
-    Recipe getById(@Bind("id") int id);
+	@SqlQuery("SELECT * FROM recipes where id = :id")
+	Recipe getById(@Bind("id") int id);
 }

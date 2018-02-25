@@ -11,10 +11,10 @@ import java.util.List;
 
 public interface IngredientDao {
 
-    @GetGeneratedKeys
-    @SqlUpdate("INSERT INTO ingredients (name, amount, measurement, recipeId) values (:name, :amount, :measurement, :recipeId)")
-    int insertIngredient(@BindWithRosetta Ingredient ingredient);
+	@GetGeneratedKeys
+	@SqlUpdate("INSERT INTO ingredients (name, amount, measurement, recipeId) values (:name, :amount, :measurement, :recipeId)")
+	int insertIngredient(@BindWithRosetta Ingredient ingredient);
 
-    @SqlQuery("SELECT * FROM ingredients where recipeId = :id")
-    List<Ingredient> getIngredientsByRecipeId(@Bind("id") int id);
+	@SqlQuery("SELECT * FROM ingredients where recipeId = :id")
+	List<Ingredient> getIngredientsByRecipeId(@Bind("id") int id);
 }

@@ -7,22 +7,22 @@ import org.skife.jdbi.v2.DBI;
 
 
 public class DaoProvider<T> implements Provider<T> {
-    private final Class<T> type;
-    private Optional<DBI> dbi;
+	private final Class<T> type;
+	private Optional<DBI> dbi;
 
-    public DaoProvider(Class<T> type) {
-        this.type = type;
-        this.dbi = Optional.absent();
-    }
+	public DaoProvider(Class<T> type) {
+		this.type = type;
+		this.dbi = Optional.absent();
+	}
 
-    @Inject
-    public void setDBI(DBI dbi) {
-        this.dbi = Optional.of(dbi);
-    }
+	@Inject
+	public void setDBI(DBI dbi) {
+		this.dbi = Optional.of(dbi);
+	}
 
-    @Override
-    public T get() {
-        return dbi.get().onDemand(type);
-    }
+	@Override
+	public T get() {
+		return dbi.get().onDemand(type);
+	}
 }
 

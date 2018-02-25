@@ -9,25 +9,25 @@ import io.jwg.models.RecipeEgg;
 
 public class RecipeManager {
 
-    private RecipeDao dao;
-    private IngredientDao ingredientDao;
+	private RecipeDao dao;
+	private IngredientDao ingredientDao;
 
-    @Inject
-    public RecipeManager(RecipeDao dao, IngredientDao ingredientDao) {
-        this.dao = dao;
-        this.ingredientDao = ingredientDao;
-    }
+	@Inject
+	public RecipeManager(RecipeDao dao, IngredientDao ingredientDao) {
+		this.dao = dao;
+		this.ingredientDao = ingredientDao;
+	}
 
-    public Recipe getById(int id) {
-        return dao.getById(id);
-    }
+	public Recipe getById(int id) {
+		return dao.getById(id);
+	}
 
-    public Recipe insert(RecipeEgg recipeEgg) {
+	public Recipe insert(RecipeEgg recipeEgg) {
 
-        int id = dao.insertRecipe(recipeEgg);
-        for (IngredientEgg egg : recipeEgg.getIngredients()) {
-            ingredientDao.insertIngredient(Ingredient.builder().from(egg).setRecipeId(id).build());
-        }
-        return dao.getById(id);
-    }
+		int id = dao.insertRecipe(recipeEgg);
+		for (IngredientEgg egg : recipeEgg.getIngredients()) {
+			ingredientDao.insertIngredient(Ingredient.builder().from(egg).setRecipeId(id).build());
+		}
+		return dao.getById(id);
+	}
 }

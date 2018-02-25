@@ -8,20 +8,21 @@ import io.dropwizard.setup.Environment;
 
 public class RecipeApplication extends Application<RecipeConfiguration> {
 
-    public static void main(String... args) throws Exception {
-        new RecipeApplication().run(args);
-    }
+	public static void main(String... args) throws Exception {
+		new RecipeApplication().run(args);
+	}
 
-    @Override
-    public void initialize(Bootstrap<RecipeConfiguration> bootstrap) {
-        GuiceBundle<RecipeConfiguration> guiceBundle = GuiceBundle.defaultBuilder(RecipeConfiguration.class)
-                .enableGuiceEnforcer(false)
-                .modules(new RecipeModule())
-                .build();
+	@Override
+	public void initialize(Bootstrap<RecipeConfiguration> bootstrap) {
+		GuiceBundle<RecipeConfiguration> guiceBundle = GuiceBundle.defaultBuilder(RecipeConfiguration.class)
+				.enableGuiceEnforcer(false)
+				.modules(new RecipeModule())
+				.build();
 
-        bootstrap.addBundle(guiceBundle);
-    }
+		bootstrap.addBundle(guiceBundle);
+	}
 
-    @Override
-    public void run(RecipeConfiguration configuration, Environment environment) throws Exception {}
+	@Override
+	public void run(RecipeConfiguration configuration, Environment environment) throws Exception {
+	}
 }

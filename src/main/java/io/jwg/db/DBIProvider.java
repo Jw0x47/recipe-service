@@ -13,7 +13,6 @@ import com.google.inject.Provider;
 import com.hubspot.guice.transactional.TransactionalDataSource;
 import com.hubspot.rosetta.jdbi.RosettaMapperFactory;
 import com.hubspot.rosetta.jdbi.RosettaObjectMapperOverride;
-
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.jdbi.DBIHealthCheck;
@@ -29,68 +28,68 @@ import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.StatementContext;
 
 public class DBIProvider implements Provider<DBI> {
-    private final TransactionalDataSource transactionalDataSource;
-    private final ManagedDataSource managedDataSource;
-    private final DataSourceFactory dataSourceFactory;
-    private final ObjectMapper objectMapper;
-    private Optional<Environment> environment;
+	private final TransactionalDataSource transactionalDataSource;
+	private final ManagedDataSource managedDataSource;
+	private final DataSourceFactory dataSourceFactory;
+	private final ObjectMapper objectMapper;
+	private Optional<Environment> environment;
 
-    @Inject
-    public DBIProvider(TransactionalDataSource transactionalDataSource,
-                       ManagedDataSource managedDataSource,
-                       DataSourceFactory dataSourceFactory,
-                       ObjectMapper objectMapper) {
-        this.transactionalDataSource = transactionalDataSource;
-        this.managedDataSource = managedDataSource;
-        this.dataSourceFactory = dataSourceFactory;
-        this.objectMapper = objectMapper.copy().setSerializationInclusion(JsonInclude.Include.ALWAYS);
-        this.environment = Optional.absent();
-    }
+	@Inject
+	public DBIProvider(TransactionalDataSource transactionalDataSource,
+										 ManagedDataSource managedDataSource,
+										 DataSourceFactory dataSourceFactory,
+										 ObjectMapper objectMapper) {
+		this.transactionalDataSource = transactionalDataSource;
+		this.managedDataSource = managedDataSource;
+		this.dataSourceFactory = dataSourceFactory;
+		this.objectMapper = objectMapper.copy().setSerializationInclusion(JsonInclude.Include.ALWAYS);
+		this.environment = Optional.absent();
+	}
 
-    @Inject(optional = true)
-    public void setEnvironment(Environment environment) {
-        this.environment = Optional.of(environment);
-    }
+	@Inject(optional = true)
+	public void setEnvironment(Environment environment) {
+		this.environment = Optional.of(environment);
+	}
 
-    @Override
-    public DBI get() {
-        final DBI dbi = new DBI(transactionalDataSource);
-        dbi.setSQLLog(new LogbackLog());
+	@Override
+	public DBI get() {
+		final DBI dbi = new DBI(transactionalDataSource);
+		dbi.setSQLLog(new LogbackLog());
 
-        if (environment.isPresent()) {
-            environment.get().lifecycle().manage(managedDataSource);
-            environment.get().healthChecks().register("db", new DBIHealthCheck(dbi, dataSourceFactory.getValidationQuery()));
-            dbi.setTimingCollector(new InstrumentedTimingCollector(environment.get().metrics(), new SanerNamingStrategy()));
-        }
+		if (environment.isPresent()) {
+			environment.get().lifecycle().manage(managedDataSource);
+			environment.get().healthChecks().register("db", new DBIHealthCheck(dbi, dataSourceFactory.getValidationQuery()));
+			dbi.setTimingCollector(new InstrumentedTimingCollector(environment.get().metrics(), new SanerNamingStrategy()));
+		}
 
-        dbi.registerArgumentFactory(new OptionalArgumentFactory(dataSourceFactory.getDriverClass()));
-        dbi.registerContainerFactory(new ImmutableListContainerFactory());
-        dbi.registerContainerFactory(new ImmutableSetContainerFactory());
-        dbi.registerContainerFactory(new GuavaOptionalContainerFactory());
-        dbi.registerArgumentFactory(new JodaDateTimeArgumentFactory());
-        dbi.registerColumnMapper(new JodaDateTimeMapper());
-        dbi.registerMapper(new RosettaMapperFactory());
+		dbi.registerArgumentFactory(new OptionalArgumentFactory(dataSourceFactory.getDriverClass()));
+		dbi.registerContainerFactory(new ImmutableListContainerFactory());
+		dbi.registerContainerFactory(new ImmutableSetContainerFactory());
+		dbi.registerContainerFactory(new GuavaOptionalContainerFactory());
+		dbi.registerArgumentFactory(new JodaDateTimeArgumentFactory());
+		dbi.registerColumnMapper(new JodaDateTimeMapper());
+		dbi.registerMapper(new RosettaMapperFactory());
 
-        new RosettaObjectMapperOverride(objectMapper).override(dbi);
+		new RosettaObjectMapperOverride(objectMapper).override(dbi);
 
-        return dbi;
-    }
+		return dbi;
+	}
 
-    private static class SanerNamingStrategy extends DelegatingStatementNameStrategy {
-        private static final String RAW_SQL = MetricRegistry.name(DBI.class, "raw-sql");
+	private static class SanerNamingStrategy extends DelegatingStatementNameStrategy {
+		private static final String RAW_SQL = MetricRegistry.name(DBI.class, "raw-sql");
 
-        private SanerNamingStrategy() {
-            super(NameStrategies.CHECK_EMPTY,
-                    NameStrategies.CONTEXT_CLASS,
-                    NameStrategies.CONTEXT_NAME,
-                    NameStrategies.SQL_OBJECT,
-                    new StatementNameStrategy() {
+		private SanerNamingStrategy() {
+			super(NameStrategies.CHECK_EMPTY,
+					NameStrategies.CONTEXT_CLASS,
+					NameStrategies.CONTEXT_NAME,
+					NameStrategies.SQL_OBJECT,
+					new StatementNameStrategy() {
 
-                        @Override
-                        public String getStatementName(StatementContext statementContext) {
-                            return RAW_SQL;
-                        }
-                    });
-        }
-    }
+						@Override
+						public String getStatementName(StatementContext statementContext) {
+							return RAW_SQL;
+						}
+					});
+		}
+	}
 }
