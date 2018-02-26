@@ -3,21 +3,33 @@ package io.jwg.repl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import io.jwg.models.IngredientEgg;
+import com.hubspot.horizon.HttpClient;
+import com.hubspot.horizon.HttpRequest;
+import com.hubspot.horizon.HttpResponse;
+import com.hubspot.horizon.apache.ApacheHttpClient;
 import io.jwg.models.Measurement;
-import io.jwg.models.RecipeEgg;
+import io.jwg.models.RecipeEggWithEntries;
+import io.jwg.models.RecipeEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class DataEntryRepl {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DataEntryRepl.class);
 	private static Console CONSOLE = System.console();
+	private static final HttpClient HTTP_CLIENT = new ApacheHttpClient();
 
+
+	// Monday Garlic knots && Eggplant Pasta
+// Lefover knots && ??
+// Meatballs
+// TBD
+// TBD
 	public static void main(String[] args) throws JsonProcessingException {
 		CONSOLE = System.console();
 		if (CONSOLE == null) {
@@ -26,43 +38,72 @@ public class DataEntryRepl {
 		}
 		ObjectMapper objectMapper = new ObjectMapper();
 		while (true) {
-			RecipeEgg egg = getRecipe();
+			RecipeEggWithEntries egg = getRecipe();
 
 			String json = objectMapper.writeValueAsString(egg);
-			LOG.info("Created json: {}", json);
+			LOG.debug("Created json: {}", json);
+			addRecipe(egg);
 		}
 	}
 
-	private static RecipeEgg getRecipe() {
+	private static void addRecipe(RecipeEggWithEntries egg) {
+		HttpRequest request = HttpRequest.newBuilder()
+				.setMethod(HttpRequest.Method.POST)
+				.setUrl("http://localhost:8080/recipes/add")
+				.setBody(egg)
+				.build();
+
+		HttpResponse response = HTTP_CLIENT.execute(request);
+		if (response.getStatusCode() != 204) {
+			LOG.error(response.getAsString());
+			return;
+		}
+		LOG.info("Added recipe to database");
+	}
+
+	private static RecipeEggWithEntries getRecipe() {
 		String name = CONSOLE.readLine("Recipe Name: ");
-		int calories = Integer.valueOf(CONSOLE.readLine("Recipe Calories: "));
 		String link = CONSOLE.readLine("Recipe Link: ");
 		boolean addIngredient = true;
 
-		List<IngredientEgg> ingredients = new ArrayList<>();
+		List<RecipeEntry> entries = new ArrayList<>();
 		while (addIngredient) {
-			ingredients.add(addIngredient());
+			entries.add(tryUntil(DataEntryRepl::addRecipeEntry, 2));
 			addIngredient = CONSOLE.readLine("Add another [y/n] ").substring(0, 1).equalsIgnoreCase("y");
 		}
-		return RecipeEgg.builder()
+		return RecipeEggWithEntries.builder()
 				.setName(name)
 				.setLink(link)
-				.setCalories(calories)
-				.setIngredients(ingredients)
+				.setEntries(entries)
 				.build();
 	}
 
-	private static IngredientEgg addIngredient() {
+	private static RecipeEntry addRecipeEntry() {
 		String name = CONSOLE.readLine("Ingredient Name: ");
 		double amount = Double.valueOf(CONSOLE.readLine("Ingredient Amount: "));
-		String measuremntQ = String.format("Measurement (%s) ", ImmutableList.copyOf(Measurement.values()).toString());
-		Measurement measurement = Measurement.fromString(CONSOLE.readLine(measuremntQ));
-		return IngredientEgg.builder()
+		String measurementQuestion = String.format("Measurement (%s) ", ImmutableList.copyOf(Measurement.values()).toString());
+		String measurementStr = CONSOLE.readLine(measurementQuestion);
+		Measurement measurement = Measurement.fromString(measurementStr);
+		return RecipeEntry.builder()
 				.setName(name)
 				.setAmount(amount)
 				.setMeasurement(measurement)
 				.build();
 	}
 
+
+	private static <T> T tryUntil(Supplier<T> supplier, int tries) {
+		int counter = tries;
+		while (counter >= 0) {
+			try {
+				return supplier.get();
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				System.out.println("Lets try again!");
+				counter--;
+			}
+		}
+		throw new RuntimeException("Failed to get data after " + tries + "tries.");
+	}
 
 }

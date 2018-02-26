@@ -31,6 +31,8 @@
     <dropwizard.version>1.0.9</dropwizard.version>
     <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
     <basepom.check.skip-findbugs>true</basepom.check.skip-findbugs>
+    <basepom.check.skip-duplicate-finder>true</basepom.check.skip-duplicate-finder>
+    <dep.horizon.version>0.1.0</dep.horizon.version>
   </properties>
 
   <dependencyManagement>
@@ -77,6 +79,21 @@
         <artifactId>value</artifactId>
         <version>2.2.10</version>
       </dependency>
+      <dependency>
+        <groupId>com.hubspot</groupId>
+        <artifactId>HorizonApache</artifactId>
+        <version>${dep.horizon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.hubspot</groupId>
+        <artifactId>HorizonCore</artifactId>
+        <version>${dep.horizon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.transaction</groupId>
+        <artifactId>javax.transaction-api</artifactId>
+        <version>1.2</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -106,6 +123,10 @@
       <artifactId>metrics-healthchecks</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-migrations</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -121,7 +142,14 @@
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-jdbi</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>com.hubspot</groupId>
+      <artifactId>HorizonApache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.hubspot</groupId>
+      <artifactId>HorizonCore</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -172,6 +200,14 @@
     <dependency>
       <groupId>com.hubspot.guice</groupId>
       <artifactId>guice-transactional</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>javax.transaction-api</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
