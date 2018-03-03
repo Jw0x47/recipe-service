@@ -3,9 +3,12 @@ package io.jwg.db;
 import com.google.inject.Inject;
 import io.jwg.models.*;
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.math.Fraction;
 
 import javax.transaction.Transactional;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class RecipeManager {
@@ -73,5 +76,20 @@ public class RecipeManager {
 
 	public List<RecipeEntry> getEntriesForRecipes(List<Integer> recipeIds) {
 		return recipeDao.getEntriesForRecipes(recipeIds);
+	}
+
+	public List<String> getShoppingList(List<Integer> recipeIds) {
+		List<RecipeEntry> entries = getEntriesForRecipes(recipeIds);
+		entries.sort(Comparator.comparing(RecipeEntry::getName));
+		return entries.stream()
+				.map(e -> {
+					Fraction fraction = Fraction.getFraction(e.getAmount());
+					String amount = String.valueOf(fraction.getNumerator());
+					if (fraction.getDenominator() != 1) {
+						amount += "/" + String.valueOf(fraction.getDenominator());
+					}
+					return String.format("%s %s %s", amount, e.getMeasurement(), e.getName());
+				})
+				.collect(Collectors.toList());
 	}
 }

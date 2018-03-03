@@ -1,5 +1,6 @@
 package io.jwg.resources;
 
+import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 import io.jwg.db.RecipeManager;
 import io.jwg.models.Recipe;
@@ -10,6 +11,8 @@ import io.jwg.models.RecipeWithEntries;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -49,7 +52,24 @@ public class RecipeResource {
 
 	@GET
 	@Path("/entries")
-	public List<RecipeEntry> getEntriesForRecipes(@QueryParam("id") List<Integer> ids) {
+	public List<RecipeEntry> getEntriesForRecipes(@QueryParam("recipeId") List<Integer> ids) {
 		return recipeManager.getEntriesForRecipes(ids);
 	}
+
+	@GET
+	@Path("/shopping-list")
+	public List<String> getShoppingList(@QueryParam("recipeId") List<Integer> ids, @QueryParam("pretty") Optional<Boolean> pretty) {
+		return recipeManager.getShoppingList(ids);
+	}
+
+	@GET
+	@Path("/shopping-list/text")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getShoppingList(@QueryParam("recipeId") List<Integer> ids) {
+		return Joiner.on("\n")
+				.join(recipeManager.getShoppingList(ids).stream()
+						.map(s -> String.format("- %s", s))
+						.collect(Collectors.toList()));
+	}
+
 }

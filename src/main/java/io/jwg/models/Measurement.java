@@ -1,6 +1,7 @@
 package io.jwg.models;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -31,5 +32,9 @@ public enum Measurement {
 
 	public boolean isMeasurement(String str) {
 		return name().equalsIgnoreCase(str) || alternateNames.stream().anyMatch(s -> s.equalsIgnoreCase(str));
+	}
+
+	public String toString() {
+		return StringUtils.capitalize(name().toLowerCase().replace("_", " "));
 	}
 }
