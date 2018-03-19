@@ -12,7 +12,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -66,10 +65,7 @@ public class RecipeResource {
 	@Path("/shopping-list/text")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getShoppingList(@QueryParam("recipeId") List<Integer> ids) {
-		return Joiner.on("\n")
-				.join(recipeManager.getShoppingList(ids).stream()
-						.map(s -> String.format("- %s", s))
-						.collect(Collectors.toList()));
+		return Joiner.on("\n").join(recipeManager.getShoppingList(ids));
 	}
 
 }

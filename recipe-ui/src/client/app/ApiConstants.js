@@ -1,4 +1,4 @@
-export const BASE_API_URL = "http://localhost:8080/";
+export const BASE_API_URL = "http://localhost:8080";
 // GET     /recipes/{id} (io.jwg.resources.RecipeResource)
 export const GET_BY_ID_URL = "recipes/{0}";
 

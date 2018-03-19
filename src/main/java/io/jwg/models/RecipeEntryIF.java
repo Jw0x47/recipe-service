@@ -12,4 +12,10 @@ public interface RecipeEntryIF {
 
 	Measurement getMeasurement();
 
+	@Value.Default
+	default String getMeasurementFormatted() {
+		return getMeasurement().toString();
+	}
+
+
 }

@@ -23,6 +23,7 @@ public class RecipeApplication extends Application<RecipeConfiguration> {
 
 		bootstrap.addBundle(guiceBundle);
 		bootstrap.addBundle(createMigrationsBundle());
+		bootstrap.addBundle(new CorsBundle());
 	}
 
 	@Override

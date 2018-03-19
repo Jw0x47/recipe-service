@@ -8,6 +8,7 @@ import org.apache.commons.lang3.math.Fraction;
 import javax.transaction.Transactional;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -69,7 +70,13 @@ public class RecipeManager {
 	private void addRecipeEntriesForRecipe(int recipeId, List<RecipeEntry> entries) {
 		for (RecipeEntry entry : entries) {
 			String componentName = WordUtils.capitalizeFully(entry.getName().trim());
-			int componentId = ingredientDao.createComponent(componentName);
+			Optional<RecipeComponent> maybeComponent = ingredientDao.getComponentByName(componentName);
+			final int componentId;
+			if (maybeComponent.isPresent()) {
+				componentId = maybeComponent.get().getId();
+			} else {
+				componentId = ingredientDao.createComponent(componentName);
+			}
 			ingredientDao.createRecipeEntry(recipeId, componentId, entry.getAmount(), entry.getMeasurement());
 		}
 	}

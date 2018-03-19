@@ -6,6 +6,9 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
+
+import java.util.Optional;
 
 public interface IngredientDao {
 
@@ -21,7 +24,8 @@ public interface IngredientDao {
 												 @Bind("amount") double amount,
 												 @Bind("measurement") Measurement measurement);
 
+	@SingleValueResult
 	@SqlQuery("SELECT * FROM components where name = :name")
-	RecipeComponent getComponentByName(@Bind("name") String name);
+	Optional<RecipeComponent> getComponentByName(@Bind("name") String name);
 
 }
