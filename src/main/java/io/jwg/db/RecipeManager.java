@@ -1,14 +1,14 @@
 package io.jwg.db;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.inject.Inject;
 import io.jwg.models.*;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import javax.transaction.Transactional;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -86,9 +86,25 @@ public class RecipeManager {
 	}
 
 	public List<String> getShoppingList(List<Integer> recipeIds) {
-		List<RecipeEntry> entries = getEntriesForRecipes(recipeIds);
-		entries.sort(Comparator.comparing(RecipeEntry::getName));
-		return entries.stream()
+		List<RecipeEntry> entries = recipeIds.stream()
+				.map(recipeDao::getEntriesForRecipeById)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
+
+		Multimap<String, RecipeEntry> entriesMap = Multimaps.index(entries, r -> r.getName() + "_" + r.getMeasurement().name());
+
+		List<RecipeEntry> condensedEntries = entriesMap.asMap().entrySet().stream()
+				.map(entry -> {
+					RecipeEntry firstEntry = entry.getValue().iterator().next();
+					double result = entry.getValue().stream().mapToDouble(RecipeEntry::getAmount).sum();
+					return RecipeEntry.builder()
+							.from(firstEntry)
+							.setAmount(result)
+							.build();
+				}).collect(Collectors.toList());
+
+		condensedEntries.sort(Comparator.comparing(RecipeEntry::getName));
+		return condensedEntries.stream()
 				.map(e -> {
 					Fraction fraction = Fraction.getFraction(e.getAmount());
 					String amount = String.valueOf(fraction.getNumerator());
